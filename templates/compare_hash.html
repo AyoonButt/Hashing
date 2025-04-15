@@ -1,0 +1,47 @@
+
+{% extends "base.html" %}
+
+{% block title %}CryptoService - Compare File Hash{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Compare File Hash</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-check-double"></i> Hash Comparison</h5>
+            </div>
+            <div class="card-body">
+                {% if not hashed_files %}
+                <div class="alert alert-warning">
+                    You don't have any hashed files yet. Please <a href="{{ url_for('hash_file_route') }}">hash a file</a> first.
+                </div>
+                {% else %}
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file_id" class="form-label">Select Hashed File for Comparison</label>
+                        <select class="form-select" id="file_id" name="file_id" required>
+                            <option value="" selected disabled>Select file</option>
+                            {% for file in hashed_files %}
+                            <option value="{{ file.id }}">{{ file.filename }} ({{ file.encryption_type }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload File to Compare</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                        <div class="form-text">Maximum file size: 16MB</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Compare</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

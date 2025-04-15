@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}CryptoService - Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-file-alt"></i> Files</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-outline-primary">Upload File</a>
+                    <a href="{{ url_for('encrypt_file') }}" class="btn btn-outline-primary">Encrypt File</a>
+                    <a href="{{ url_for('decrypt_file') }}" class="btn btn-outline-primary">Decrypt File</a>
+                    <a href="{{ url_for('hash_file_route') }}" class="btn btn-outline-primary">Hash File</a>
+                    <a href="{{ url_for('compare_hash') }}" class="btn btn-outline-primary">Compare File Hash</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-key"></i> Keys</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('generate_key') }}" class="btn btn-outline-primary">Generate Key</a>
+                    <a href="{{ url_for('upload_key') }}" class="btn btn-outline-primary">Upload Key</a>
+                    <a href="{{ url_for('generate_password_route') }}" class="btn btn-outline-primary">Generate Password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user-cog"></i> Account</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('account') }}" class="btn btn-outline-primary">Account Settings</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-file-alt"></i> My Files</h5>
+            </div>
+            <div class="card-body">
+                {% if files %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in files %}
+                            <tr>
+                                <td>{{ file.filename }}</td>
+                                <td>
+                                    {% if file.file_type == 'original' %}
+                                        <span class="badge bg-primary">Original</span>
+                                    {% elif file.file_type == 'encrypted' %}
+                                        <span class="badge bg-success">Encrypted ({{ file.encryption_type }})</span>
+                                    {% elif file.file_type == 'decrypted' %}
+                                        <span class="badge bg-info">Decrypted ({{ file.encryption_type }})</span>
+                                    {% elif file.file_type == 'hashed' %}
+                                        <span class="badge bg-warning text-dark">Hashed ({{ file.encryption_type }})</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <a href="{{ url_for('delete_file', file_id=file.id) }}" class="btn btn-outline-danger" 
+                                           onclick="return confirm('Are you sure you want to delete this file?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    {% if file.file_type == 'hashed' %}
+                                    <br>
+                                    <small class="text-muted">Hash: {{ file.hash_value }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    You don't have any files yet. <a href="{{ url_for('upload_file') }}">Upload a file</a> to get started.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-key"></i> My Keys</h5>
+            </div>
+            <div class="card-body">
+                {% if keys %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Algorithm</th>
+                                <th>Size</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key in keys %}
+                            <tr>
+                                <td>{{ key.name }}</td>
+                                <td>
+                                    {% if key.key_type == 'symmetric' %}
+                                        <span class="badge bg-primary">Symmetric</span>
+                                    {% elif key.key_type == 'public' %}
+                                        <span class="badge bg-success">Public</span>
+                                    {% elif key.key_type == 'private' %}
+                                        <span class="badge bg-danger">Private</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ key.key_algorithm }}</td>
+                                <td>{{ key.key_size }} bits</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('download_key', key_id=key.id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <a href="{{ url_for('delete_key', key_id=key.id) }}" class="btn btn-outline-danger" 
+                                           onclick="return confirm('Are you sure you want to delete this key?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    You don't have any keys yet. <a href="{{ url_for('generate_key') }}">Generate a key</a> to get started.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

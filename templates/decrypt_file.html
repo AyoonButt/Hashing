@@ -1,0 +1,102 @@
+
+{% extends "base.html" %}
+
+{% block title %}CryptoService - Decrypt File{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Decrypt File</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-unlock"></i> File Decryption</h5>
+            </div>
+            <div class="card-body">
+                {% if not encrypted_files %}
+                <div class="alert alert-warning">
+                    You don't have any encrypted files yet. Please <a href="{{ url_for('encrypt_file') }}">encrypt a file</a> first.
+                </div>
+                {% elif not symmetric_keys and not private_keys %}
+                <div class="alert alert-warning">
+                    You don't have any decryption keys available. Please <a href="{{ url_for('generate_key') }}">generate a key</a> first.
+                </div>
+                {% else %}
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="file_id" class="form-label">Select Encrypted File</label>
+                        <select class="form-select" id="file_id" name="file_id" required>
+                            <option value="" selected disabled>Select file</option>
+                            {% for file in encrypted_files %}
+                            <option value="{{ file.id }}" data-type="{{ 'asymmetric' if 'asymmetric' in file.encryption_type else 'symmetric' }}">
+                                {{ file.filename }} ({{ file.encryption_type }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id="symmetric_key_div" style="display: none;">
+                        {% if symmetric_keys %}
+                        <div class="mb-3">
+                            <label for="symmetric_key_id" class="form-label">Symmetric Key</label>
+                            <select class="form-select" id="symmetric_key_id" name="key_id">
+                                <option value="" selected disabled>Select key</option>
+                                {% for key in symmetric_keys %}
+                                <option value="{{ key.id }}">{{ key.name }} ({{ key.key_algorithm }}, {{ key.key_size }} bits)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="private_key_div" style="display: none;">
+                        {% if private_keys %}
+                        <div class="mb-3">
+                            <label for="private_key_id" class="form-label">Private Key</label>
+                            <select class="form-select" id="private_key_id" name="key_id">
+                                <option value="" selected disabled>Select key</option>
+                                {% for key in private_keys %}
+                                <option value="{{ key.id }}">{{ key.name }} ({{ key.key_algorithm }}, {{ key.key_size }} bits)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Decrypt</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileSelect = document.getElementById('file_id');
+        const symmetricKeyDiv = document.getElementById('symmetric_key_div');
+        const privateKeyDiv = document.getElementById('private_key_div');
+        
+        fileSelect.addEventListener('change', function() {
+            const selectedOption = fileSelect.options[fileSelect.selectedIndex];
+            const encryptionType = selectedOption.getAttribute('data-type');
+            
+            if (encryptionType === 'symmetric') {
+                symmetricKeyDiv.style.display = 'block';
+                privateKeyDiv.style.display = 'none';
+                document.getElementById('symmetric_key_id').setAttribute('name', 'key_id');
+                document.getElementById('private_key_id').removeAttribute('name');
+            } else if (encryptionType === 'asymmetric') {
+                symmetricKeyDiv.style.display = 'none';
+                privateKeyDiv.style.display = 'block';
+                document.getElementById('private_key_id').setAttribute('name', 'key_id');
+                document.getElementById('symmetric_key_id').removeAttribute('name');
+            }
+        });
+    });
+</script>
+{% endblock %}

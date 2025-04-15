@@ -1,0 +1,39 @@
+
+{% extends "base.html" %}
+
+{% block title %}CryptoService - Hash File{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Hash File</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-fingerprint"></i> File Hashing</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select File</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                        <div class="form-text">Maximum file size: 16MB</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="hash_algorithm" class="form-label">Hash Algorithm</label>
+                        <select class="form-select" id="hash_algorithm" name="hash_algorithm" required>
+                            <option value="SHA-256" selected>SHA-256</option>
+                            <option value="SHA-3">SHA-3</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Generate Hash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

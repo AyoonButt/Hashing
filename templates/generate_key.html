@@ -1,0 +1,105 @@
+
+{% extends "base.html" %}
+
+{% block title %}CryptoService - Generate Key{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Generate Cryptographic Key</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-key"></i> Key Generation</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="key_name" class="form-label">Key Name</label>
+                        <input type="text" class="form-control" id="key_name" name="key_name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="key_type" class="form-label">Key Type</label>
+                        <select class="form-select" id="key_type" name="key_type" required>
+                            <option value="" selected disabled>Select key type</option>
+                            <option value="symmetric">Symmetric</option>
+                            <option value="asymmetric">Asymmetric (Public/Private)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="symmetric_options" style="display: none;">
+                        <div class="mb-3">
+                            <label for="symmetric_algorithm" class="form-label">Algorithm</label>
+                            <select class="form-select" id="symmetric_algorithm" name="key_algorithm">
+                                <option value="AES">AES</option>
+                                <option value="3DES">3DES</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="symmetric_key_size" class="form-label">Key Size</label>
+                            <select class="form-select" id="symmetric_key_size" name="key_size">
+                                <option value="128">128 bits</option>
+                                <option value="192">192 bits</option>
+                                <option value="256" selected>256 bits</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="asymmetric_options" style="display: none;">
+                        <div class="mb-3">
+                            <label for="asymmetric_algorithm" class="form-label">Algorithm</label>
+                            <select class="form-select" id="asymmetric_algorithm" name="key_algorithm">
+                                <option value="RSA">RSA</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="asymmetric_key_size" class="form-label">Key Size</label>
+                            <select class="form-select" id="asymmetric_key_size" name="key_size">
+                                <option value="1024">1024 bits</option>
+                                <option value="2048" selected>2048 bits</option>
+                                <option value="4096">4096 bits</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Generate Key</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const keyTypeSelect = document.getElementById('key_type');
+        const symmetricOptions = document.getElementById('symmetric_options');
+        const asymmetricOptions = document.getElementById('asymmetric_options');
+        
+        keyTypeSelect.addEventListener('change', function() {
+            if (this.value === 'symmetric') {
+                symmetricOptions.style.display = 'block';
+                asymmetricOptions.style.display = 'none';
+                document.getElementById('symmetric_algorithm').setAttribute('name', 'key_algorithm');
+                document.getElementById('symmetric_key_size').setAttribute('name', 'key_size');
+                document.getElementById('asymmetric_algorithm').removeAttribute('name');
+                document.getElementById('asymmetric_key_size').removeAttribute('name');
+            } else if (this.value === 'asymmetric') {
+                symmetricOptions.style.display = 'none';
+                asymmetricOptions.style.display = 'block';
+                document.getElementById('asymmetric_algorithm').setAttribute('name', 'key_algorithm');
+                document.getElementById('asymmetric_key_size').setAttribute('name', 'key_size');
+                document.getElementById('symmetric_algorithm').removeAttribute('name');
+                document.getElementById('symmetric_key_size').removeAttribute('name');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+
+{% extends "base.html" %}
+
+{% block title %}CryptoService - Encrypt File{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Encrypt File</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-lock"></i> File Encryption</h5>
+            </div>
+            <div class="card-body">
+                {% if not symmetric_keys and not public_keys %}
+                <div class="alert alert-warning">
+                    You don't have any encryption keys yet. Please <a href="{{ url_for('generate_key') }}">generate a key</a> first.
+                </div>
+                {% else %}
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select File</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                        <div class="form-text">Maximum file size: 16MB</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="encryption_type" class="form-label">Encryption Type</label>
+                        <select class="form-select" id="encryption_type" name="encryption_type" required>
+                            <option value="" selected disabled>Select encryption type</option>
+                            {% if symmetric_keys %}
+                            <option value="symmetric">Symmetric (AES/3DES)</option>
+                            {% endif %}
+                            {% if public_keys %}
+                            <option value="asymmetric">Asymmetric (RSA)</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    
+                    <div id="symmetric_options" style="display: none;">
+                        {% if symmetric_keys %}
+                        <div class="mb-3">
+                            <label for="symmetric_key_id" class="form-label">Encryption Key</label>
+                            <select class="form-select" id="symmetric_key_id" name="symmetric_key_id">
+                                <option value="" selected disabled>Select key</option>
+                                {% for key in symmetric_keys %}
+                                <option value="{{ key.id }}">{{ key.name }} ({{ key.key_algorithm }}, {{ key.key_size }} bits)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="block_mode" class="form-label">Block Mode</label>
+                            <select class="form-select" id="block_mode" name="block_mode">
+                                <option value="CBC">CBC (Cipher Block Chaining)</option>
+                                <option value="CFB">CFB (Cipher Feedback)</option>
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="asymmetric_options" style="display: none;">
+                        {% if public_keys %}
+                        <div class="mb-3">
+                            <label for="asymmetric_key_id" class="form-label">Public Key</label>
+                            <select class="form-select" id="asymmetric_key_id" name="asymmetric_key_id">
+                                <option value="" selected disabled>Select public key</option>
+                                {% for key in public_keys %}
+                                <option value="{{ key.id }}">{{ key.name }} ({{ key.key_algorithm }}, {{ key.key_size }} bits)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Encrypt</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const encryptionTypeSelect = document.getElementById('encryption_type');
+        const symmetricOptions = document.getElementById('symmetric_options');
+        const asymmetricOptions = document.getElementById('asymmetric_options');
+        
+        encryptionTypeSelect.addEventListener('change', function() {
+            if (this.value === 'symmetric') {
+                symmetricOptions.style.display = 'block';
+                asymmetricOptions.style.display = 'none';
+            } else if (this.value === 'asymmetric') {
+                symmetricOptions.style.display = 'none';
+                asymmetricOptions.style.display = 'block';
+            }
+        });
+    });
+</script>
+{% endblock %}

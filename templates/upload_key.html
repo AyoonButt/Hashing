@@ -1,0 +1,129 @@
+
+{% extends "base.html" %}
+
+{% block title %}CryptoService - Upload Key{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Upload Cryptographic Key</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-upload"></i> Key Upload</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="key_name" class="form-label">Key Name</label>
+                        <input type="text" class="form-control" id="key_name" name="key_name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="key_type" class="form-label">Key Type</label>
+                        <select class="form-select" id="key_type" name="key_type" required>
+                            <option value="" selected disabled>Select key type</option>
+                            <option value="symmetric">Symmetric</option>
+                            <option value="public">Public (Asymmetric)</option>
+                            <option value="private">Private (Asymmetric)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="key_algorithm" class="form-label">Algorithm</label>
+                        <select class="form-select" id="key_algorithm" name="key_algorithm" required>
+                            <option value="" selected disabled>Select algorithm</option>
+                            <option value="AES">AES</option>
+                            <option value="3DES">3DES</option>
+                            <option value="RSA">RSA</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="key_size" class="form-label">Key Size (bits)</label>
+                        <select class="form-select" id="key_size" name="key_size" required>
+                            <option value="" selected disabled>Select key size</option>
+                            <option value="128">128</option>
+                            <option value="192">192</option>
+                            <option value="256">256</option>
+                            <option value="1024">1024</option>
+                            <option value="2048">2048</option>
+                            <option value="4096">4096</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="key_file" class="form-label">Key File</label>
+                        <input type="file" class="form-control" id="key_file" name="key_file" required>
+                    </div>
+                    
+                    <div id="iv_div" style="display: none;">
+                        <div class="mb-3">
+                            <label for="iv_file" class="form-label">Initialization Vector (IV) File</label>
+                            <input type="file" class="form-control" id="iv_file" name="iv_file">
+                            <div class="form-text">Required for symmetric keys</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Upload Key</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const keyTypeSelect = document.getElementById('key_type');
+        const keyAlgorithmSelect = document.getElementById('key_algorithm');
+        const keySizeSelect = document.getElementById('key_size');
+        const ivDiv = document.getElementById('iv_div');
+        
+        // Update algorithm options based on key type
+        keyTypeSelect.addEventListener('change', function() {
+            // Clear current options
+            keyAlgorithmSelect.innerHTML = '<option value="" selected disabled>Select algorithm</option>';
+            
+            // Clear current key size options
+            keySizeSelect.innerHTML = '<option value="" selected disabled>Select key size</option>';
+            
+            if (this.value === 'symmetric') {
+                // Add symmetric algorithms
+                keyAlgorithmSelect.innerHTML += '<option value="AES">AES</option>';
+                keyAlgorithmSelect.innerHTML += '<option value="3DES">3DES</option>';
+                
+                // Show IV div
+                ivDiv.style.display = 'block';
+            } else if (this.value === 'public' || this.value === 'private') {
+                // Add asymmetric algorithms
+                keyAlgorithmSelect.innerHTML += '<option value="RSA">RSA</option>';
+                
+                // Hide IV div
+                ivDiv.style.display = 'none';
+            }
+        });
+        
+        // Update key size options based on algorithm
+        keyAlgorithmSelect.addEventListener('change', function() {
+            // Clear current options
+            keySizeSelect.innerHTML = '<option value="" selected disabled>Select key size</option>';
+            
+            if (this.value === 'AES') {
+                keySizeSelect.innerHTML += '<option value="128">128 bits</option>';
+                keySizeSelect.innerHTML += '<option value="192">192 bits</option>';
+                keySizeSelect.innerHTML += '<option value="256">256 bits</option>';
+            } else if (this.value === '3DES') {
+                keySizeSelect.innerHTML += '<option value="192">192 bits</option>';
+            } else if (this.value === 'RSA') {
+                keySizeSelect.innerHTML += '<option value="1024">1024 bits</option>';
+                keySizeSelect.innerHTML += '<option value="2048">2048 bits</option>';
+                keySizeSelect.innerHTML += '<option value="4096">4096 bits</option>';
+            }
+        });
+    });
+</script>
+{% endblock %}
